@@ -1,8 +1,9 @@
 import React from 'react';
-import { ScrollView, StyleSheet, StatusBar, View, Button, Dimensions } from 'react-native';
+import { ScrollView, StyleSheet, StatusBar, View, Dimensions } from 'react-native';
 import { ExpoLinksView } from '@expo/samples';
 import axios from 'axios';
-import { Container, Header, Content, Card, CardItem, Body, Text } from 'native-base';
+import { Container, Header, Content, Card, CardItem, 
+    Body, Text, Icon, Button} from 'native-base';
 import moment from 'moment';
 
 import { connect } from 'react-redux';
@@ -28,7 +29,9 @@ class ArticlesScreen extends React.Component {
     this.state = {
       hasLoaded: false,
       article: null,
-      id: this.props.navigation.getParam('material_id', {})
+      id: this.props.navigation.getParam('material_id', {}),
+      currentpage: 1,
+      lastpage: 1,
     }
 
   	this.toggleReference = this.toggleReference.bind(this)
@@ -52,7 +55,7 @@ class ArticlesScreen extends React.Component {
         if(typeof article !== "undefined") {
           this.setState({
             hasLoaded: true,
-            article: article
+            article: article,
           })
 
           this.props.navigation.setParams({ article_title: article.title })
@@ -73,31 +76,65 @@ class ArticlesScreen extends React.Component {
 
     this.props.addReference(ref);
   }
+
+  shouldComponentUpdate(nextProps, nextState) { 
+    return true
+  }
   
   render() {
   	
-    const { hasLoaded, article } = this.state
+    const { hasLoaded, article, currentpage, lastpage } = this.state
 
     if(hasLoaded) {
+
       const source = { uri:article.url, cache:true };
       if(this.DEBUGGING) { console.log(source) }
 
       return (
-         <Pdf
-              source={source}
-              onLoadComplete={(numberOfPages,filePath)=>{
-                  console.log(`number of pages: ${numberOfPages}`);
-              }}
-              onPageChanged={(page,numberOfPages)=>{
-                  console.log(`current page: ${page}`);
-              }}
-              onError={(error)=>{
-                  console.log(error);
-              }}
-              onPressLink={(uri)=>{
-                  console.log(`Link presse: ${uri}`)
-              }}
-              style={styles.pdf}/>
+        <>
+          <Pdf
+            ref={(pdf) => { this.pdf = pdf; }}
+            source={source}
+            onLoadComplete={(numberOfPages,filePath)=>{
+                if(this.DEBUGGING) { console.log(`number of pages: ${numberOfPages}`) }
+                this.setState({ lastpage : numberOfPages })
+            }}
+            onPageChanged={(page,numberOfPages)=>{
+                if(this.DEBUGGING) { console.log(`current page: ${page}`) }
+                this.setState({ currentpage : page})
+            }}
+            onError={(error)=>{
+                if(this.DEBUGGING) { console.log(error) }
+            }}
+            onPressLink={(uri)=>{
+                if(this.DEBUGGING) { console.log(`Link presse: ${uri}`) }
+            }}
+            style={styles.pdf}/>
+          <View style={styles.floatingButtonsContainer}>
+            <Button light style={styles.floatingButton}
+              onPress={() => {
+                if(this.DEBUGGING) { console.log(currentpage + " : " + lastpage) }
+
+                if(currentpage>1) { 
+                  this.pdf.setPage(currentpage - 1) 
+                  this.setState({ currentpage : currentpage - 1})
+                }
+              }}>
+              <Icon name='arrow-up' />
+            </Button>
+            <Button light style={styles.floatingButton}
+              onPress={() => {
+                if(this.DEBUGGING) { console.log(currentpage + " : " + lastpage) }
+
+                if(currentpage<lastpage) { 
+                  this.pdf.setPage(currentpage + 1) 
+                  this.setState({ currentpage : currentpage + 1})
+                }
+              }}>
+              <Icon name='arrow-down' />
+            </Button>
+          </View>
+        </>
       )
     } else {
       return (
@@ -153,6 +190,13 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
   },
+  floatingButtonsContainer: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+  },
+  floatingButton: {
+  }
 });
 
 const mapStateToProps = (state) => ({
