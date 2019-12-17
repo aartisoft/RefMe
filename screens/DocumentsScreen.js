@@ -22,17 +22,17 @@ class DocumentsScreen extends React.Component {
       articles: [],
   	}
 
-    this.getArticles();
+    this.getArticles("machine learning");
   }
 
-  getArticles() {
+  getArticles(query_string) {
   	const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
   	const ENDPOINT = "/search"
   	const url = PLATFORM_URL + ENDPOINT
   	
   	axios.get(url, {
       params: {
-        text: "biology",
+        text: query_string,
         type: "text",
         page: 1,
       }
