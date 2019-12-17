@@ -1,6 +1,5 @@
 import React from 'react';
 import { ScrollView, StyleSheet, StatusBar, View, TouchableOpacity} from 'react-native';
-import { ExpoLinksView } from '@expo/samples';
 import axios from 'axios';
 import { Container, Header, Content, Card, CardItem, Text, Body } from 'native-base';
 import moment from 'moment';
@@ -8,7 +7,7 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import * as referenceAction from '../actions/referenceAction';
 
-class articlesScreen extends React.Component {
+class DocumentsScreen extends React.Component {
 	
   constructor(props) {
   	super(props)
@@ -61,12 +60,6 @@ class articlesScreen extends React.Component {
   		material_id: material_id,
   	})
   }
-	
-  async componentWillMount() {
-    await Expo.Font.loadAsync({
-      'Mono': require('../assets/fonts/SpaceMono-Regular.ttf'),
-    });
-  }
 
   render() {
   	const { articles, hasLoaded  } = this.state
@@ -81,7 +74,8 @@ class articlesScreen extends React.Component {
           <ScrollView contentContainerStyle={styles.container}>
         		{ articles.map((article, i) => {
         		  return ( 
-                <TouchableOpacity onPress={ () => {this.openDocument(article.material_id)} } style={styles.card}>
+                <TouchableOpacity onPress={ () => {this.openDocument(article.material_id)} } 
+                  style={styles.card} key={i}>
                   <Card style={styles.card}>
                 		<CardItem style={styles.header}>
                 			<Body>
@@ -103,7 +97,7 @@ class articlesScreen extends React.Component {
   }
 }
 
-articlesScreen.navigationOptions = {
+DocumentsScreen.navigationOptions = {
   title: 'Docs',
   tabBarLabel: 'Docs',
   tabBarIcon: ({ focused }) => (
@@ -153,4 +147,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(articlesScreen)
+)(DocumentsScreen)

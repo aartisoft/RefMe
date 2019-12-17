@@ -8,41 +8,31 @@ import rootReducer from './reducers'
 
 import AppNavigator from './navigation/AppNavigator';
 
+import { Text } from 'native-base';
+
 export default function App(props) {
-  const [isLoadingComplete, setLoadingComplete] = useState(false);
 
   const store = createStore(rootReducer)
+  
+  return (
+    <Provider store={store}>
+      <View style={styles.container}>
+        {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+        <AppNavigator />
+      </View>
+    </Provider>
+  );
 
-  if (!isLoadingComplete && !props.skipLoadingScreen) {
-    return (
-      <>
-      </>
-    );
-  } else {
-    return (
-      <Provider store={store}>
-        <View style={styles.container}>
-          {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-          <AppNavigator />
-        </View>
-      </Provider>
-    );
-  }
-}
-
-function handleLoadingError(error) {
-  // In this case, you might want to report the error to your error reporting
-  // service, for example Sentry
-  console.warn(error);
-}
-
-function handleFinishLoading(setLoadingComplete) {
-  setLoadingComplete(true);
 }
 
 const styles = StyleSheet.create({
-  container: {
+  centerContainer: {
     flex: 1,
     backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  baseText: {
+    color: '#000'
   },
 });

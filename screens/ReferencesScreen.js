@@ -1,6 +1,5 @@
 import React from 'react';
 import { Clipboard, Button, Text, StyleSheet, StatusBar, View } from 'react-native';
-import { ExpoLinksView } from '@expo/samples';
 import axios from 'axios';
 
 import { connect } from 'react-redux';
