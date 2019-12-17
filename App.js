@@ -6,33 +6,19 @@ import { Provider } from 'react-redux'
 import { createStore } from 'redux'
 import rootReducer from './reducers'
 
-import AppNavigator from './navigation/AppNavigator';
+import AppContainer from './navigation/AppNavigator';
 
-import { Text } from 'native-base';
-
-export default function App(props) {
+const App: () => React$Node = () => {
 
   const store = createStore(rootReducer)
   
   return (
     <Provider store={store}>
-      <View style={styles.container}>
-        {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-        <AppNavigator />
-      </View>
+      {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+      <AppContainer />
     </Provider>
   );
 
 }
 
-const styles = StyleSheet.create({
-  centerContainer: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  baseText: {
-    color: '#000'
-  },
-});
+export default App;

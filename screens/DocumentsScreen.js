@@ -12,13 +12,13 @@ class DocumentsScreen extends React.Component {
   constructor(props) {
   	super(props)
   	
-  	// Bind our functions
+    this.DEBUGGING = true;
+
   	this.getArticles = this.getArticles.bind(this)
   	this.openDocument = this.openDocument.bind(this)
   	
   	this.state = {
       hasLoaded: false,
-  		response: {},
       articles: [],
   	}
 
@@ -26,7 +26,7 @@ class DocumentsScreen extends React.Component {
   }
 
   getArticles() {
-  	const PLATFORM_URL = "https://platform.x5gon.org/api/v1"
+  	const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
   	const ENDPOINT = "/search"
   	const url = PLATFORM_URL + ENDPOINT
   	
@@ -37,19 +37,17 @@ class DocumentsScreen extends React.Component {
         page: 1,
       }
     })
-  		.then(res => {
-  			const articles = res.data.rec_materials;
-  			
-        console.log(articles)
+		.then(res => {
+			const articles = res.data.rec_materials;
 
-  			this.setState({
-          hasLoaded: true,
-  				articles: articles
-  			})
-  		})
-  		.catch(error => {
-  			console.log(error);
-  		})
+			this.setState({
+        hasLoaded: true,
+				articles: articles
+			})
+		})
+		.catch(error => {
+			console.log(error);
+		})
   }
 
   openDocument(material_id) {
@@ -62,10 +60,13 @@ class DocumentsScreen extends React.Component {
   }
 
   render() {
+
   	const { articles, hasLoaded  } = this.state
 
+    if(this.DEBUGGING) { console.log("DocumentsScreen.render: has it loaded? " + hasLoaded) }
+
     return (
-        <>
+      <>
         {!hasLoaded ? (
           <View style={styles.centerContainer}>
             <Text styles={styles.baseText}>Loading...</Text>   
@@ -92,7 +93,7 @@ class DocumentsScreen extends React.Component {
             })}
           </ScrollView>
         )}
-      	</>
+      </>
     )
   }
 }

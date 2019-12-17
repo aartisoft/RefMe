@@ -29,15 +29,13 @@ class ArticlesScreen extends React.Component {
   getArticle() {
     const { id } = this.state
 
-    const PLATFORM_URL = "https://platform.x5gon.org/api/v1"
+    const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
     const ENDPOINT = "/oer_materials/" + id
     const url = PLATFORM_URL + ENDPOINT
     
     axios.get(url, {} )
       .then(res => {
-        const article = res.data.oer_materials;
-        
-        console.log(article)
+        const article = res.data.oer_materials
 
         this.setState({
           hasLoaded: true,
