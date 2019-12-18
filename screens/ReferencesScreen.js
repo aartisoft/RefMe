@@ -17,6 +17,8 @@ class ReferencesScreen extends React.Component {
     this.writeToClipboard=this.writeToClipboard.bind(this)
     this.getReferenceObject=this.getReferenceObject.bind(this)
     this.getArticleReference=this.getArticleReference.bind(this)
+    this.updateAesthetic = this.updateAesthetic.bind(this)
+    this.openDocument = this.openDocument.bind(this)
 
     this.DEBUGGING = true
 
@@ -24,6 +26,22 @@ class ReferencesScreen extends React.Component {
       references: [],
       documents: [],
     }
+  }
+
+  openDocument(material_id) {
+    console.log("Running...")
+    const { articles  } = this.state
+    
+    this.props.navigation.navigate('Articles', {
+      material_id: material_id,
+    })
+  }
+
+  updateAesthetic() {
+    this.setState({
+      references: [],
+      documents: [],
+    })
 
     this.props.references.map( (id) => {
       this.getReferenceObject(id)    
@@ -37,6 +55,16 @@ class ReferencesScreen extends React.Component {
     for(var id in this.props.docs) {
       const doc = this.props.docs[id]
       this.getArticleReference(id, doc)
+    }
+  }
+
+  componentDidMount() {
+    this.updateAesthetic()
+  }
+
+  componentDidUpdate(prevProps) {
+    if(this.props !== prevProps) {
+      this.updateAesthetic()
     }
   }
 
@@ -94,7 +122,7 @@ class ReferencesScreen extends React.Component {
 
     return (
       <>
-        <Text style={styles.bibliographyText}> {ref.provider.provider_name + ", " + initials + ", " + ref.title + ", " + ref.provider.provider_name + ", " + 
+        <Text style={styles.bibliographyText}> {(index+1) + ": " + ref.provider.provider_name + ", " + initials + ", " + ref.title + ", " + ref.provider.provider_name + ", " + 
           date + ". Available from: " + ref.url} </Text>
         <Text> </Text>
       </>
@@ -132,7 +160,7 @@ class ReferencesScreen extends React.Component {
           centerElement="MyRefs"
         />
         <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.centerContainer}>
+          <View style={styles.sectionContainer}>
             <Text style={styles.headerText}>
               Recent Articles
             </Text>
@@ -148,7 +176,7 @@ class ReferencesScreen extends React.Component {
             )}
           </View>
 
-          <View style={styles.centerContainer}>
+          <View style={styles.sectionContainer}>
             <Text style={styles.headerText}>
               Your bibliography
             </Text>
@@ -215,18 +243,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 20,
+    justifyContent: 'space-between',
     backgroundColor: '#fff',
   },
-  centerContainer: {
-    flex: 1,
+  sectionContainer: {
+    flexGrow: 1,
     backgroundColor: '#fff',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
+    padding: 0,
+    marginBottom: 20,
   },
   button: {
-    marginTop: 40,
   },
   loadingView: {
     width: '100%',
