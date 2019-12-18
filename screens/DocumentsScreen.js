@@ -19,13 +19,16 @@ class DocumentsScreen extends React.Component {
   	this.getArticles = this.getArticles.bind(this)
   	this.openDocument = this.openDocument.bind(this)
     this.search = this.search.bind(this)
+    this.checkArticlesAreSafe = this.checkArticlesAreSafe.bind(this)
   	
   	this.state = {
       hasLoaded: false,
       articles: [],
+      pageNumber: 1,
+      safety: [],
   	}
 
-    this.getArticles("machine learning");
+    this.getArticles("machine learning", this.state.pageNumber);
   }
 
   getArticles(keyword) {
@@ -46,13 +49,49 @@ class DocumentsScreen extends React.Component {
 			const articles = res.data.rec_materials;
 
 			this.setState({
+				articles: articles,
         hasLoaded: true,
-				articles: articles
 			})
+
+      this.checkArticlesAreSafe()
 		})
 		.catch(error => {
 			console.log(error);
 		})
+  }
+
+  checkArticlesAreSafe() {
+    const { articles } = this.state
+
+    for(var i=0; i<articles.length; i++) {
+      const id = articles[i].material_id
+      const missingArticle = articles[i]
+
+      const providerName = articles[i].provider
+      missingArticle['provider'] = {
+        provider_id: -1,
+        provider_name: providerName,
+        provider_domain: "unknown",
+      }
+
+      console.log("Checking article: " + id)
+
+      const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
+      const ENDPOINT = "/oer_materials/" + id
+      const url = PLATFORM_URL + ENDPOINT
+
+      axios.get(url, {} )
+        .then(res => {
+          const article = res.data.oer_materials
+          
+          if(typeof article === "undefined") {
+            this.props.uploadMissingDocument(id, missingArticle)
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    }
   }
 
   openDocument(material_id) {
@@ -161,7 +200,10 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    addReference: ref => dispatch(referenceAction.addReference(ref))
+    addReference: ref => dispatch(referenceAction.addReference(ref)),
+    removeReference: ref => dispatch(referenceAction.removeReference(ref)),
+    updateDocument: (id, doc) => dispatch(referenceAction.updateDocument(id, doc)),
+    uploadMissingDocument: (id, doc) => dispatch(referenceAction.uploadMissingDocument(id, doc)),
   }
 };
 

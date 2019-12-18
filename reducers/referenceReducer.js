@@ -2,7 +2,8 @@ import * as actionTypes from '../actions/actionTypes';
 
 export const initialReferencesState = {
   ids: [],
-  docs: {}
+  docs: {},
+  missing: {},
 }
 
 export default (state = initialReferencesState, action = null) => {
@@ -44,6 +45,17 @@ export default (state = initialReferencesState, action = null) => {
         console.log(state)
 
         state.docs[id] = doc
+        return state
+      }
+
+      case actionTypes.UPLOAD_MISSING_DOCUMENT: {
+        const { id, doc } = action
+        console.log("referenceReducer.uploadMissingDocument")
+        console.log(doc)
+        console.log("state: ")
+        console.log(state)
+
+        state.missing[id] = doc
         return state
       }
 

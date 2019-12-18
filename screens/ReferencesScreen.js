@@ -102,6 +102,14 @@ class ReferencesScreen extends React.Component {
   }
 
   getReferenceObject(id) {
+    if(id in this.props.missing) {
+      this.setState({
+        references: [...this.state.references, this.props.missing[id]],
+      })
+
+      return;
+    }
+
     const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
     const ENDPOINT = "/oer_materials/" + id
     const url = PLATFORM_URL + ENDPOINT
@@ -124,6 +132,14 @@ class ReferencesScreen extends React.Component {
   }
 
   getArticleReference(id, doc) {
+    if(id in this.props.missing) {
+      this.setState({
+        documents: [...this.state.documents, {...this.props.missing[id], meta: doc}],
+      })
+
+      return;
+    }
+
     const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
     const ENDPOINT = "/oer_materials/" + id
     const url = PLATFORM_URL + ENDPOINT
@@ -321,6 +337,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => ({
     references: state.references.ids,
     documents: state.references.docs,
+    missing: state.references.missing,
 })
 
 const mapDispatchToProps = (dispatch) => ({
