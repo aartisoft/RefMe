@@ -14,7 +14,7 @@ class DocumentsScreen extends React.Component {
   constructor(props) {
   	super(props)
   	
-    this.DEBUGGING = true;
+    this.DEBUGGING = false
 
   	this.getArticles = this.getArticles.bind(this)
   	this.openDocument = this.openDocument.bind(this)
@@ -127,13 +127,13 @@ DocumentsScreen.navigationOptions = {
 };
 
 const styles = StyleSheet.create({
-  header: {
-    borderRadius: 20,
-  },
   footer: {
     borderRadius: 20,
   },
   card: {
+    borderRadius: 20,
+  },
+  header: {
     borderRadius: 20,
   },
   container: {
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    references: state.references
+    references: state.references.ids
   }
 };
 

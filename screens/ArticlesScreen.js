@@ -18,7 +18,7 @@ class ArticlesScreen extends React.Component {
   constructor(props) {
   	super(props)
 
-    this.DEBUGGING = true
+    this.DEBUGGING = false
 
     this.props.navigation.setParams({ title: "Loading..."})
 
@@ -86,6 +86,14 @@ class ArticlesScreen extends React.Component {
       console.log(this.props.references) 
     }
   }
+
+  updateDocument() {
+    if(this.DEBUGGING) { console.log("updating document state") }
+    
+    const { id, currentpage } = this.state
+
+    this.props.updateDocument(id, {currentpage: currentpage})  
+  }
   
   render() {
 
@@ -126,6 +134,7 @@ class ArticlesScreen extends React.Component {
             }}
             onPageChanged={(page,numberOfPages)=>{
                 if(this.DEBUGGING) { console.log(`current page: ${page}`) }
+                this.updateDocument()
                 this.setState({ currentpage : page})
             }}
             onError={(error)=>{
@@ -240,6 +249,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   addReference: ref => dispatch(referenceAction.addReference(ref)),
   removeReference: ref => dispatch(referenceAction.removeReference(ref)),
+  updateDocument: (id, doc) => dispatch(referenceAction.updateDocument(id, doc)),
 })
 
 export default connect(

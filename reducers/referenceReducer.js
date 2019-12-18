@@ -1,7 +1,8 @@
 import * as actionTypes from '../actions/actionTypes';
 
 export const initialReferencesState = {
-  ids: []
+  ids: [],
+  docs: {}
 }
 
 export default (state = initialReferencesState, action = null) => {
@@ -33,6 +34,17 @@ export default (state = initialReferencesState, action = null) => {
           ...state,
           ids: state.ids,
         }
+      }
+
+      case actionTypes.UPDATE_DOCUMENT: {
+        const { id, doc } = action
+        console.log("referenceReducer.updateDocument: ")
+        console.log(doc)
+        console.log("state: ")
+        console.log(state)
+
+        state.docs[id] = doc
+        return state
       }
 
       default: {

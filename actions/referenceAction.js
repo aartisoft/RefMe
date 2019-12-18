@@ -11,3 +11,9 @@ export const removeReference = (ref) => ({
 	ref,
 	type: actionTypes.REMOVE_REFERENCE,
 })
+
+export const updateDocument = (id, doc) => ({
+	id,
+	doc,
+	type: actionTypes.UPDATE_DOCUMENT,
+})
