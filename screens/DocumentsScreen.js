@@ -66,8 +66,7 @@ class DocumentsScreen extends React.Component {
 
   search(event) {
     const value = event._dispatchInstances.memoizedProps.value
-
-    console.log(value)
+    
     this.getArticles(value)
   }
 

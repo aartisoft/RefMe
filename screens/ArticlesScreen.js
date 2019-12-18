@@ -22,18 +22,25 @@ class ArticlesScreen extends React.Component {
 
     this.props.navigation.setParams({ title: "Loading..."})
 
+    const id = this.props.navigation.getParam('material_id', {})
+
+    if(this.DEBUGGING) { 
+      console.log("References: ")
+      console.log(this.props.references) 
+    }
+
     this.state = {
       hasLoaded: false,
       article: null,
-      id: this.props.navigation.getParam('material_id', {}),
+      id: id,
       currentpage: 1,
       lastpage: 1,
+      isReferenced: this.props.references.includes(id+"")
     }
 
   	this.toggleReference = this.toggleReference.bind(this)
     this.getArticle = this.getArticle.bind(this)
 
-    // Fetch my material
     this.getArticle()
   }
 
@@ -63,23 +70,26 @@ class ArticlesScreen extends React.Component {
   }
 
   toggleReference() {
+    if(this.DEBUGGING) { console.log("toggling reference") }
 
-    const { id } = this.state
+    const { id, isReferenced } = this.state
 
-    let ref = {
-      material_id: id,
+    if(isReferenced) {
+      this.props.removeReference(id)  
+    } else { 
+      this.props.addReference(id)
     }
-
-    this.props.addReference(ref);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) { 
-    return true
+    
+    this.setState({ isReferenced : !this.state.isReferenced })
+    if(this.DEBUGGING) { 
+      console.log("References:") 
+      console.log(this.props.references) 
+    }
   }
   
   render() {
-  	
-    const { hasLoaded, article, currentpage, lastpage } = this.state
+
+    const { hasLoaded, article, currentpage, lastpage, isReferenced } = this.state
 
     if(hasLoaded) {
 
@@ -90,6 +100,22 @@ class ArticlesScreen extends React.Component {
         <>
           <Toolbar
             centerElement={article.title}
+            rightElement={{
+              menu: {
+                icon: "more-vert",
+                labels: [isReferenced ? "Remove from Bibliography" : "Save To Bibliography"]
+              }
+            }}
+            onRightElementPress={ (label) => {
+              switch(label.index) {
+                case 0:
+                this.toggleReference()
+                break;
+
+                default:
+                console.log("Unknown action: " + label.index)
+              }
+            }}
           />
           <Pdf
             ref={(pdf) => { this.pdf = pdf; }}
@@ -208,11 +234,12 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => ({
-    references: state.references,
+  references: state.references.ids,
 })
 
 const mapDispatchToProps = (dispatch) => ({
   addReference: ref => dispatch(referenceAction.addReference(ref)),
+  removeReference: ref => dispatch(referenceAction.removeReference(ref)),
 })
 
 export default connect(
