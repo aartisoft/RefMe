@@ -2,7 +2,7 @@ import React from 'react';
 import { Clipboard, StyleSheet, StatusBar, View, ScrollView,TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { Container, Header, Content, Card, CardItem, 
-    Body, Text, Icon, Button} from 'native-base';
+    Body, Text, Icon, Button, Left, Center, Right} from 'native-base';
 
 import { connect } from 'react-redux';
 import * as referenceAction from '../actions/referenceAction';
@@ -21,6 +21,7 @@ class ReferencesScreen extends React.Component {
     this.openDocument = this.openDocument.bind(this)
 
     this.DEBUGGING = true
+    this.RESET_STATE = false
 
     this.state = {
       references: [],
@@ -59,6 +60,8 @@ class ReferencesScreen extends React.Component {
   }
 
   componentDidMount() {
+    if(this.RESET_STATE) { this.props.resetState() }
+
     this.updateAesthetic()
   }
 
@@ -130,7 +133,10 @@ class ReferencesScreen extends React.Component {
   }
 
   document(doc, index) {
-    if(this.DEBUGGING) { console.log("rendering document: " + doc.material_id) }
+    if(this.DEBUGGING) { 
+      console.log("rendering document with meta: ")
+      console.log(doc.meta)
+    }
 
     return (
       <TouchableOpacity onPress={ () => {this.openDocument(doc.material_id)} } 
@@ -141,6 +147,9 @@ class ReferencesScreen extends React.Component {
               <Text>{doc.title}</Text>
               <Text note>{doc.provider.provider_name}</Text>
             </Body>
+            <Right>
+              <Text>{"page " + doc.meta.currentpage + " / " + doc.meta.numberofpages}</Text>
+            </Right>
           </CardItem>
         </Card>
       </TouchableOpacity>
@@ -171,7 +180,7 @@ class ReferencesScreen extends React.Component {
               </View>
             ) : (
               <View style={styles.loadingView}>
-                <Text>{this.props.documents > 0 ? 'Loading...' : 'No references added yet'}</Text>
+                <Text>{this.props.documents > 0 ? 'Loading...' : 'No documents read recently'}</Text>
               </View>
             )}
           </View>
@@ -187,7 +196,7 @@ class ReferencesScreen extends React.Component {
               </View>
             ) : (
               <View style={styles.loadingView}>
-                <Text>{this.props.documents > 0 ? 'Loading...' : 'No documents added yet'}</Text>
+                <Text>{this.props.documents > 0 ? 'Loading...' : 'No references added yet'}</Text>
               </View>
             )}
           </View>
@@ -285,6 +294,7 @@ const mapDispatchToProps = (dispatch) => ({
   addReference: ref => dispatch(referenceAction.addReference(ref)),
   removeReference: ref => dispatch(referenceAction.removeReference(ref)),
   updateDocument: (id, doc) => dispatch(referenceAction.updateDocument(id, doc)),
+  resetState: () => dispatch(referenceAction.resetState())
 })
 
 export default connect(

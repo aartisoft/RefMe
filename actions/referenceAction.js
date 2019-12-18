@@ -17,3 +17,7 @@ export const updateDocument = (id, doc) => ({
 	doc,
 	type: actionTypes.UPDATE_DOCUMENT,
 })
+
+export const resetState = () => ({
+	type: actionTypes.RESET_STATE,
+})

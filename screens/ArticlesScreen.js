@@ -56,9 +56,16 @@ class ArticlesScreen extends React.Component {
         const article = res.data.oer_materials
 
         if(typeof article !== "undefined") {
+          var startPage = 1
+
+          if(id in this.props.documents) {
+            startPage = this.props.documents[id].currentpage
+          }
+
           this.setState({
             hasLoaded: true,
             article: article,
+            currentpage: startPage,
           })
 
           this.props.navigation.setParams({ article_title: article.title })
@@ -90,9 +97,12 @@ class ArticlesScreen extends React.Component {
   updateDocument() {
     if(this.DEBUGGING) { console.log("updating document state") }
     
-    const { id, currentpage } = this.state
+    const { id, currentpage, lastpage} = this.state
 
-    this.props.updateDocument(id, {currentpage: currentpage})  
+    this.props.updateDocument(id, {
+      currentpage: currentpage,
+      numberofpages: lastpage,
+    })
   }
   
   render() {
@@ -244,6 +254,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => ({
   references: state.references.ids,
+  documents: state.references.docs,
 })
 
 const mapDispatchToProps = (dispatch) => ({

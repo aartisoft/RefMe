@@ -1,4 +1,4 @@
 export const ADD_REFERENCE = 'ADD_REFERENCE';
 export const REMOVE_REFERENCE = 'REMOVE_REFERENCE';
-
 export const UPDATE_DOCUMENT = 'UPDATE_DOCUMENT';
+export const RESET_STATE = 'RESET_STATE';

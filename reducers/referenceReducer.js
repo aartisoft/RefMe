@@ -47,6 +47,11 @@ export default (state = initialReferencesState, action = null) => {
         return state
       }
 
+      case actionTypes.REVERT_STATE: {
+        console.log("referenceReducer.resetState: should only be used in debugging")
+        return initialReferencesState
+      }
+
       default: {
         return state;
       }
