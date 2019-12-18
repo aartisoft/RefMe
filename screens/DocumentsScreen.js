@@ -1,7 +1,8 @@
 import React from 'react';
 import { ScrollView, StyleSheet, StatusBar, View, TouchableOpacity} from 'react-native';
 import axios from 'axios';
-import { Container, Header, Content, Card, CardItem, Text, Body } from 'native-base';
+import { Container, Header, Content, Card, CardItem, 
+  Text, Body, Button } from 'native-base';
 import moment from 'moment';
 
 import { connect } from 'react-redux';
@@ -24,14 +25,15 @@ class DocumentsScreen extends React.Component {
   	this.state = {
       hasLoaded: false,
       articles: [],
-      pageNumber: 1,
-      safety: [],
+      nextPage: 1,
+      keyword: "machine learning",
+      stillArticles: true,
   	}
 
-    this.getArticles("machine learning", this.state.pageNumber);
+    this.getArticles(this.state.keyword, this.state.nextPage);
   }
 
-  getArticles(keyword) {
+  getArticles(keyword, page, reset=false) {
   	const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
   	const ENDPOINT = "/search"
   	const url = PLATFORM_URL + ENDPOINT
@@ -42,15 +44,28 @@ class DocumentsScreen extends React.Component {
       params: {
         text: keyword,
         type: "text",
-        page: 1,
+        page: page,
       }
     })
 		.then(res => {
-			const articles = res.data.rec_materials;
+      var articles = this.state.articles
+      res.data.rec_materials.map( (article) => {
+        console.log("next")
+        articles.push(article)
+      })
+
+      if(reset) { articles = res.data.rec_materials }
+
+      const nextPage = this.state.nextPage+1
+      const maxPages = res.data.metadata.max_pages
+
+      console.log(nextPage + " / " + maxPages)
 
 			this.setState({
 				articles: articles,
         hasLoaded: true,
+        nextPage: nextPage,
+        stillArticles: nextPage < maxPages 
 			})
 
       this.checkArticlesAreSafe()
@@ -65,7 +80,7 @@ class DocumentsScreen extends React.Component {
 
     for(var i=0; i<articles.length; i++) {
       const id = articles[i].material_id
-      const missingArticle = articles[i]
+      const missingArticle = { ...articles[i] }
 
       const providerName = articles[i].provider
       missingArticle['provider'] = {
@@ -105,13 +120,17 @@ class DocumentsScreen extends React.Component {
 
   search(event) {
     const value = event._dispatchInstances.memoizedProps.value
-    
-    this.getArticles(value)
+    this.setState({ 
+      keyword : value, 
+      nextPage : 1,
+    })
+
+    this.getArticles(value, 1, true)
   }
 
   render() {
 
-  	const { articles, hasLoaded  } = this.state
+  	const { articles, hasLoaded, stillArticles } = this.state
 
     if(this.DEBUGGING) { console.log("DocumentsScreen.render: has it loaded? " + hasLoaded) }
 
@@ -131,7 +150,15 @@ class DocumentsScreen extends React.Component {
           </View>
         ) : (
           <ScrollView contentContainerStyle={styles.container}>
+            <Text style={{ paddingBottom : 10 }}>{"Showing " + articles.length + " results for " + this.state.keyword + ":"}</Text>
+
         		{ articles.map((article, i) => {
+              var author = article.provider
+
+              if(typeof author === "object") {
+                author = article.provider.provider_name
+              }
+
         		  return ( 
                 <TouchableOpacity onPress={ () => {this.openDocument(article.material_id)} } 
                   style={styles.card} key={i}>
@@ -139,16 +166,24 @@ class DocumentsScreen extends React.Component {
                 		<CardItem style={styles.header}>
                 			<Body>
                         <Text>{article.title}</Text>
-                        <Text note>{article.provider}</Text>
+                        <Text note>{author}</Text>
                       </Body>
                 		</CardItem>
                     <CardItem style={styles.footer}>
-                      	<Text numberOfLines={4} style={styles.description}>{article.description}</Text>    
+                      	<Text numberOfLines={4} style={styles.description}>{article.description == null ? "No description" : article.description}</Text>    
                   	</CardItem>
                 	</Card>
                 </TouchableOpacity>
               );
             })}
+            {stillArticles ? (
+              <Button
+                style={styles.button}
+                onPress={ () => {this.getArticles(this.state.keyword, this.state.nextPage)} }
+              >
+                <Text>View more</Text>
+              </Button>
+            ) : null}
           </ScrollView>
         )}
       </>
@@ -190,6 +225,9 @@ const styles = StyleSheet.create({
   baseText: {
     color: '#000'
   },
+  button: { 
+    marginTop: 10,
+  }
 });
 
 const mapStateToProps = (state, ownProps) => {

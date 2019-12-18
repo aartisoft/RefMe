@@ -11,8 +11,6 @@ export default (state = initialReferencesState, action = null) => {
       case actionTypes.ADD_REFERENCE: {
         const { ref } = action
         console.log("referenceReducer.addReference: " + ref)
-        console.log("references: ")
-        console.log(state)
 
         return {
           ...state,
@@ -23,8 +21,6 @@ export default (state = initialReferencesState, action = null) => {
       case actionTypes.REMOVE_REFERENCE: {
         const { ref } = action
         console.log("referenceReducer.removeReference: " + ref)
-        console.log("references: ")
-        console.log(state)
 
         const location = state.ids.indexOf(ref+"")
         console.log("location: " + location)
@@ -40,9 +36,6 @@ export default (state = initialReferencesState, action = null) => {
       case actionTypes.UPDATE_DOCUMENT: {
         const { id, doc } = action
         console.log("referenceReducer.updateDocument: ")
-        console.log(doc)
-        console.log("state: ")
-        console.log(state)
 
         state.docs[id] = doc
         return state
@@ -51,9 +44,6 @@ export default (state = initialReferencesState, action = null) => {
       case actionTypes.UPLOAD_MISSING_DOCUMENT: {
         const { id, doc } = action
         console.log("referenceReducer.uploadMissingDocument")
-        console.log(doc)
-        console.log("state: ")
-        console.log(state)
 
         state.missing[id] = doc
         return state
