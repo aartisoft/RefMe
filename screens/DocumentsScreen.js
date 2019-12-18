@@ -7,6 +7,8 @@ import moment from 'moment';
 import { connect } from 'react-redux';
 import * as referenceAction from '../actions/referenceAction';
 
+import { Toolbar } from 'react-native-material-ui';
+
 class DocumentsScreen extends React.Component {
 	
   constructor(props) {
@@ -16,6 +18,7 @@ class DocumentsScreen extends React.Component {
 
   	this.getArticles = this.getArticles.bind(this)
   	this.openDocument = this.openDocument.bind(this)
+    this.search = this.search.bind(this)
   	
   	this.state = {
       hasLoaded: false,
@@ -25,14 +28,16 @@ class DocumentsScreen extends React.Component {
     this.getArticles("machine learning");
   }
 
-  getArticles(query_string) {
+  getArticles(keyword) {
   	const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
   	const ENDPOINT = "/search"
   	const url = PLATFORM_URL + ENDPOINT
   	
+    if(this.DEBUGGING) { console.log(keyword) }
+
   	axios.get(url, {
       params: {
-        text: query_string,
+        text: keyword,
         type: "text",
         page: 1,
       }
@@ -59,6 +64,13 @@ class DocumentsScreen extends React.Component {
   	})
   }
 
+  search(event) {
+    const value = event._dispatchInstances.memoizedProps.value
+
+    console.log(value)
+    this.getArticles(value)
+  }
+
   render() {
 
   	const { articles, hasLoaded  } = this.state
@@ -67,6 +79,14 @@ class DocumentsScreen extends React.Component {
 
     return (
       <>
+        <Toolbar
+          centerElement="MyRefs"
+          searchable={{
+              autoFocus: true,
+              placeholder: 'Search',
+              onSubmitEditing: this.search,
+          }}
+        />
         {!hasLoaded ? (
           <View style={styles.centerContainer}>
             <Text styles={styles.baseText}>Loading...</Text>   
@@ -101,6 +121,7 @@ class DocumentsScreen extends React.Component {
 DocumentsScreen.navigationOptions = {
   title: 'Docs',
   tabBarLabel: 'Docs',
+  header: null,
   tabBarIcon: ({ focused }) => (
     <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'} />
   ),

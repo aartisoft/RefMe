@@ -11,13 +11,9 @@ import * as referenceAction from '../actions/referenceAction';
 
 import Pdf from 'react-native-pdf';
 
-class ArticlesScreen extends React.Component {
+import { Toolbar } from 'react-native-material-ui';
 
-  static navigationOptions = ({ navigation }) => {
-    return {
-      title: navigation.getParam('article_title', 'Loading...'),
-    };
-  };
+class ArticlesScreen extends React.Component {
 
   constructor(props) {
   	super(props)
@@ -92,6 +88,9 @@ class ArticlesScreen extends React.Component {
 
       return (
         <>
+          <Toolbar
+            centerElement={article.title}
+          />
           <Pdf
             ref={(pdf) => { this.pdf = pdf; }}
             source={source}
@@ -138,12 +137,21 @@ class ArticlesScreen extends React.Component {
       )
     } else {
       return (
-        <View style={styles.centerContainer}>
-          <Text styles={styles.baseText}>Loading...</Text>   
-        </View>
+        <>
+          <Toolbar
+            centerElement="Loading..."
+          />
+          <View style={styles.centerContainer}>
+            <Text styles={styles.baseText}>Loading...</Text>   
+          </View>
+        </>
       )
     }
 	}
+}
+
+ArticlesScreen.navigationOptions = {
+  header: null,
 }
 
 const styles = StyleSheet.create({
