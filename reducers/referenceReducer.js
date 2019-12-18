@@ -4,6 +4,9 @@ export const initialReferencesState = {
   ids: [],
   docs: {},
   missing: {},
+  user: {
+    isPro: false,
+  }
 }
 
 export default (state = initialReferencesState, action = null) => {
@@ -52,6 +55,17 @@ export default (state = initialReferencesState, action = null) => {
       case actionTypes.REVERT_STATE: {
         console.log("referenceReducer.resetState: should only be used in debugging")
         return initialReferencesState
+      }
+
+      case actionTypes.ENABLE_PRO_FEATURES: {
+        console.log("referenceReducer.enableProFeatures: user has upgraded to pro")
+        return {
+          ...state,
+          user: {
+            ...state.user,
+            isPro: true,
+          }
+        }
       }
 
       default: {

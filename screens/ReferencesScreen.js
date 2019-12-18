@@ -206,59 +206,105 @@ class ReferencesScreen extends React.Component {
   }
 
   render() {
-
     const { references, documents } = this.state;
-    
+    const { user } = this.props
+
     const isReferences = references.length > 0
     const isDocuments = documents.length > 0
 
-  	return (
-      <>
-        <Toolbar
-          centerElement="MyRefs"
-        />
-        <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.sectionContainer}>
-            <Text style={styles.headerText}>
-              Recent Articles
-            </Text>
+    if(user.isPro) {
+      // Pro features enabled
+      return (
+        <>
+          <Toolbar
+            centerElement="MyRefs"
+          />
+          <ScrollView contentContainerStyle={styles.container}>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.headerText}>
+                Recent Articles
+              </Text>
 
-            {isDocuments ? (
-              <View style={styles.itemsView}>
-               {documents.map((document, i) => this.document(document, i))}
-              </View>
-            ) : (
-              <View style={styles.loadingView}>
-                <Text>{this.props.documents > 0 ? 'Loading...' : 'No documents read recently'}</Text>
-              </View>
-            )}
-          </View>
+              {isDocuments ? (
+                <View style={styles.itemsView}>
+                 {documents.map((document, i) => this.document(document, i))}
+                </View>
+              ) : (
+                <View style={styles.loadingView}>
+                  <Text>{this.props.documents > 0 ? 'Loading...' : 'No documents read recently'}</Text>
+                </View>
+              )}
+            </View>
 
-          <View style={styles.sectionContainer}>
-            <Text style={styles.headerText}>
-              Your bibliography
-            </Text>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.headerText}>
+                Your bibliography
+              </Text>
 
-            {isReferences ? (
-              <View style={styles.itemsView}>
-               {references.map((reference, i) => this.reference(reference, i))}
-              </View>
-            ) : (
-              <View style={styles.loadingView}>
-                <Text>{this.props.documents > 0 ? 'Loading...' : 'No references added yet'}</Text>
-              </View>
-            )}
-          </View>
-          
-          <Button
-            style={styles.button}
-            onPress={this.writeToClipboard}
-          >
-            <Text>Write To Clipboard</Text>
-          </Button>
-        </ScrollView>
-      </>
-  	);
+              {isReferences ? (
+                <View style={styles.itemsView}>
+                 {references.map((reference, i) => this.reference(reference, i))}
+                </View>
+              ) : (
+                <View style={styles.loadingView}>
+                  <Text>{this.props.documents > 0 ? 'Loading...' : 'No references added yet'}</Text>
+                </View>
+              )}
+            </View>
+            
+            <Button
+              style={styles.button}
+              onPress={this.writeToClipboard}
+            >
+              <Text>Write To Clipboard</Text>
+            </Button>
+          </ScrollView>
+        </>
+      );
+    } else {
+      // Pro features not enabled
+    	return (
+        <>
+          <Toolbar
+            centerElement="MyRefs"
+          />
+          <ScrollView contentContainerStyle={styles.container}>
+            <TouchableOpacity onPress={ () => {} } 
+              style={styles.card} key={index}>
+              <Card style={styles.card}>
+                <CardItem style={styles.header}>
+                  <Body>
+                    <Text style={styles.headerText}>Enable Pro</Text>
+                    <Text>Gain access to a bibliography</Text>
+                    <Text>View your history</Text>
+                  </Body>
+                </CardItem>
+              </Card>
+            </TouchableOpacity>
+            
+            <View style={styles.sectionContainer}>
+              <Text style={styles.headerText}>
+                Recent Articles
+              </Text>
+              <Text note style={{ paddingBottom : 10 }} >Pro feature</Text>
+
+              {isDocuments ? (
+                <View style={styles.itemsView}>
+                  {this.document(documents[0], 0)}
+                </View>
+              ) : null}
+            </View>
+
+            <View style={styles.sectionContainer}>
+              <Text style={styles.headerText}>
+                Your bibliography
+              </Text>
+              <Text note>Pro feature</Text>
+            </View>
+          </ScrollView>
+        </>
+    	);
+    }
   }
 
 	async writeToClipboard(){
@@ -336,6 +382,7 @@ const mapStateToProps = (state) => ({
     references: state.references.ids,
     documents: state.references.docs,
     missing: state.references.missing,
+    user: state.references.user,
 })
 
 const mapDispatchToProps = (dispatch) => ({

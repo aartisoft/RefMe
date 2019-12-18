@@ -24,10 +24,9 @@ export const uploadMissingDocument = (id, doc) => ({
 	type: actionTypes.UPLOAD_MISSING_DOCUMENT,
 })
 
-
-
-
-
+export const enableProFeatures = () => ({
+	type: actionTypes.ENABLE_PRO_FEATURES,
+})
 
 
 
