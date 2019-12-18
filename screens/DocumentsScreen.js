@@ -28,6 +28,13 @@ class DocumentsScreen extends React.Component {
       nextPage: 1,
       keyword: "machine learning",
       stillArticles: true,
+      colors: [
+        "#e056fd",
+        "#ffbe76",
+        "#ff7979",
+        "#badc58",
+        "#7ed6df"
+      ]
   	}
 
     this.getArticles(this.state.keyword, this.state.nextPage);
@@ -130,7 +137,7 @@ class DocumentsScreen extends React.Component {
 
   render() {
 
-  	const { articles, hasLoaded, stillArticles } = this.state
+  	const { articles, hasLoaded, stillArticles, colors } = this.state
 
     if(this.DEBUGGING) { console.log("DocumentsScreen.render: has it loaded? " + hasLoaded) }
 
@@ -146,11 +153,20 @@ class DocumentsScreen extends React.Component {
         />
         {!hasLoaded ? (
           <View style={styles.centerContainer}>
-            <Text styles={styles.baseText}>Loading...</Text>   
+            <Button
+                style={styles.button}
+                onPress={ () => {this.getArticles(this.state.keyword, this.state.nextPage)} }
+              >
+              <Body>
+                <Text style={styles.baseText}>Loading...</Text>
+              </Body>
+            </Button>   
           </View>
         ) : (
           <ScrollView contentContainerStyle={styles.container}>
-            <Text style={{ paddingBottom : 10 }}>{"Showing " + articles.length + " results for " + this.state.keyword + ":"}</Text>
+            <View style={styles.centerContainer}>
+              <Text style={{ color: '#fff', paddingTop : 10, paddingBottom: 20 }}>{"Showing " + articles.length + " results for " + this.state.keyword + ":"}</Text>
+            </View>
 
         		{ articles.map((article, i) => {
               var author = article.provider
@@ -159,18 +175,22 @@ class DocumentsScreen extends React.Component {
                 author = article.provider.provider_name
               }
 
+              const color = colors[i%5]
+
         		  return ( 
                 <TouchableOpacity onPress={ () => {this.openDocument(article.material_id)} } 
-                  style={styles.card} key={i}>
-                  <Card style={styles.card}>
-                		<CardItem style={styles.header}>
+                  style={{...styles.card, marginTop: 10, marginBottom: 10}} key={i}>
+                  <Card style={{...styles.card, backgroundColor: color}}>
+                		<CardItem style={{...styles.header, backgroundColor: color}}>
                 			<Body>
-                        <Text>{article.title}</Text>
-                        <Text note>{author}</Text>
+                        <Text style={styles.headerText}>{article.title}</Text>
+                        <Text style={styles.baseText}>{author}</Text>
                       </Body>
                 		</CardItem>
-                    <CardItem style={styles.footer}>
-                      	<Text numberOfLines={4} style={styles.description}>{article.description == null ? "No description" : article.description}</Text>    
+                    <CardItem style={{...styles.footer, backgroundColor: color}}>
+                      	<Text numberOfLines={4} style={styles.baseText}>
+                          {article.description==null ? "No description" : article.description}
+                        </Text>    
                   	</CardItem>
                 	</Card>
                 </TouchableOpacity>
@@ -181,7 +201,9 @@ class DocumentsScreen extends React.Component {
                 style={styles.button}
                 onPress={ () => {this.getArticles(this.state.keyword, this.state.nextPage)} }
               >
-                <Text>View more</Text>
+                <Body>
+                  <Text style={styles.baseText}>View more</Text>
+                </Body>
               </Button>
             ) : null}
           </ScrollView>
@@ -206,6 +228,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 20,
+    borderColor: '#000'
   },
   header: {
     borderRadius: 20,
@@ -214,19 +237,27 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: '#130f40',
   },
   centerContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#130f40',
     alignItems: 'center',
     justifyContent: 'center',
   },
   baseText: {
-    color: '#000'
+    color: '#fff',
+    fontSize: 12,
   },
-  button: { 
+  headerText: {
+    color: '#fff',
+    fontSize: 24,
+  },
+  button: {
+    backgroundColor: "#686de0", 
     marginTop: 10,
+    borderRadius: 20,
+    borderColor: '#000'
   }
 });
 

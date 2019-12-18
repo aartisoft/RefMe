@@ -51,10 +51,20 @@ ReferencesStack.navigationOptions = {
 
 ReferencesStack.path = '';
 
-const tabNavigator = createBottomTabNavigator({
-  DocumentsStack: {screen: DocumentsStack},
-  ReferencesStack: {screen: ReferencesStack}
-});
+const tabNavigator = createBottomTabNavigator(
+  {
+    DocumentsStack: {screen: DocumentsStack},
+    ReferencesStack: {screen: ReferencesStack}
+  },
+  {
+    tabBarOptions: {
+      activeTintColor: '#fff',
+      activeBackgroundColor: '#2196f3',
+      inactiveTintColor: '#fff',
+      inactiveBackgroundColor: '#2196f3',
+    }
+  }
+);
 
 tabNavigator.path = '';
 

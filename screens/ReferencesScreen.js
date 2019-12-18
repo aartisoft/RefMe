@@ -46,19 +46,22 @@ class ReferencesScreen extends React.Component {
       documents: [],
     })
 
-    this.props.references.map( (id) => {
-      this.getReferenceObject(id)    
-    })
+    setTimeout(
+      function() {
+        this.props.references.map( (id) => {
+          this.getReferenceObject(id)    
+        })
 
-    if(this.DEBUGGING) {
-      console.log("Finding documents: ")
-      console.log(this.props.documents)
-    }
+        if(this.DEBUGGING) {
+          console.log("Finding documents: ")
+          console.log(this.props.documents)
+        }
 
-    for(var id in this.props.documents) {
-      const doc = this.props.documents[id]
-      this.getArticleReference(id, doc)
-    }
+        for(var id in this.props.documents) {
+          const doc = this.props.documents[id]
+          this.getArticleReference(id, doc)
+        }
+      }.bind(this), 200);
   }
 
   componentDidMount() {
@@ -189,15 +192,15 @@ class ReferencesScreen extends React.Component {
 
     return (
       <TouchableOpacity onPress={ () => {this.openDocument(doc.material_id)} } 
-        style={styles.card} key={index}>
+        style={styles.touchableOpacity} key={index}>
         <Card style={styles.card}>
           <CardItem style={styles.header}>
             <Body>
-              <Text>{doc.title}</Text>
-              <Text note>{doc.provider.provider_name}</Text>
+              <Text style={styles.headerText}>{doc.title}</Text>
+              <Text style={styles.baseText}>{doc.provider.provider_name}</Text>
             </Body>
             <Right>
-              <Text>{"page " + currentpage + " / " + doc.meta.numberofpages}</Text>
+              <Text style={styles.baseText}>{"page " + currentpage + " / " + doc.meta.numberofpages}</Text>
             </Right>
           </CardItem>
         </Card>
@@ -231,7 +234,7 @@ class ReferencesScreen extends React.Component {
                 </View>
               ) : (
                 <View style={styles.loadingView}>
-                  <Text>{this.props.documents > 0 ? 'Loading...' : 'No documents read recently'}</Text>
+                  <Text style={styles.baseText}>{this.props.documents > 0 ? 'Loading...' : 'No documents read recently'}</Text>
                 </View>
               )}
             </View>
@@ -247,7 +250,7 @@ class ReferencesScreen extends React.Component {
                 </View>
               ) : (
                 <View style={styles.loadingView}>
-                  <Text>{this.props.documents > 0 ? 'Loading...' : 'No references added yet'}</Text>
+                  <Text style={styles.baseText}>{this.props.documents > 0 ? 'Loading...' : 'No references added yet'}</Text>
                 </View>
               )}
             </View>
@@ -269,14 +272,14 @@ class ReferencesScreen extends React.Component {
             centerElement="MyRefs"
           />
           <ScrollView contentContainerStyle={styles.container}>
-            <TouchableOpacity onPress={ () => {} } 
-              style={styles.card} key={index}>
-              <Card style={styles.card}>
-                <CardItem style={styles.header}>
+            <TouchableOpacity onPress={ () => {} } >
+              <Card style={styles.upgradeCard}>
+                <CardItem style={{...styles.header, backgroundColor : "#686de0"}}>
                   <Body>
                     <Text style={styles.headerText}>Enable Pro</Text>
-                    <Text>Gain access to a bibliography</Text>
-                    <Text>View your history</Text>
+                    <Text style={styles.baseText}>*Gain access to a bibliography</Text>
+                    <Text style={styles.baseText}>*View your history</Text>
+                    <Text style={styles.baseText}>*Never lose your page</Text>
                   </Body>
                 </CardItem>
               </Card>
@@ -308,13 +311,20 @@ class ReferencesScreen extends React.Component {
   }
 
 	async writeToClipboard(){
-	  const { references } = this.props;
-	  var content = ""
-	  references.forEach (ref => {
-	  	content += ref.author + ", " + ref.initials + ", " + ref.title + ", " + ref.website_name + ", " + ref.date + ". Available from: " + ref.URL
-	  	content += " /////////////////////// "
+	  const { references } = this.state;
+	  var content = []
+    console.log("Outputting to clipboard")
+
+	  references.map((ref, index) => {
+      const date = ref.creation_date===null ? ref.retrieved_date : ref.creation_date
+
+      var initials = ref.provider.provider_name.match(/\b\w/g) || [];
+      initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+      
+	  	content.push((index+1) + ": " + ref.provider.provider_name + ", " + initials + ", " + ref.title + ", " + ref.provider.provider_name + ", " + 
+                  date + ". Available from: " + ref.url)
 	  })
-	  await Clipboard.setString(content);
+	  await Clipboard.setString(content.join(', '));
 	}
 
 }
@@ -329,32 +339,45 @@ ReferencesScreen.navigationOptions = {
 };
 
 const styles = StyleSheet.create({
-  card: {
+  touchableOpacity: {
     width: `100%`,
     borderRadius: 20,
   },
+  card: {
+    width: `100%`,
+    borderRadius: 20,
+    backgroundColor: "#686de0",
+    borderColor: '#000'
+  },
+  upgradeCard: {
+    width: `100%`,
+    borderRadius: 20,
+    paddingBottom: 10,
+    marginBottom: 10,
+    backgroundColor: "#686de0",
+    borderColor: '#000'
+  },
   header: {
     borderRadius: 20,
+    backgroundColor: "#686de0",
   },
   baseText: {
-    color: '#000',
-    paddingTop: 10,
-    paddingBottom: 10
+    color: '#fff',
+    fontSize: 12,
   },
   headerText: {
-    fontSize: 20,
+    color: '#fff',
+    fontSize: 15,
     paddingBottom: 10,
-    fontWeight: 'bold',
   },
   container: {
     flexGrow: 1,
     padding: 20,
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: '#130f40'
   },
   sectionContainer: {
     flexGrow: 1,
-    backgroundColor: '#fff',
     padding: 0,
     marginBottom: 20,
   },
@@ -368,14 +391,14 @@ const styles = StyleSheet.create({
   itemsView: {
     flexGrow: 1,
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
     width: '100%',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
   },
   bibliographyText: {
+    color: '#fff',
     fontSize: 8,
-  }
+  },
 });
 
 const mapStateToProps = (state) => ({

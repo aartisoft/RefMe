@@ -5,7 +5,7 @@ export const initialReferencesState = {
   docs: {},
   missing: {},
   user: {
-    isPro: false,
+    isPro: true,
   }
 }
 
