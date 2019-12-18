@@ -19,6 +19,8 @@ class ReferencesScreen extends React.Component {
     this.getArticleReference=this.getArticleReference.bind(this)
     this.updateAesthetic = this.updateAesthetic.bind(this)
     this.openDocument = this.openDocument.bind(this)
+    this.reference = this.reference.bind(this)
+    this.document = this.document.bind(this)
 
     this.DEBUGGING = true
     this.RESET_STATE = false
@@ -50,11 +52,11 @@ class ReferencesScreen extends React.Component {
 
     if(this.DEBUGGING) {
       console.log("Finding documents: ")
-      console.log(this.props.docs)
+      console.log(this.props.documents)
     }
 
-    for(var id in this.props.docs) {
-      const doc = this.props.docs[id]
+    for(var id in this.props.documents) {
+      const doc = this.props.documents[id]
       this.getArticleReference(id, doc)
     }
   }
@@ -63,12 +65,40 @@ class ReferencesScreen extends React.Component {
     if(this.RESET_STATE) { this.props.resetState() }
 
     this.updateAesthetic()
+
+    this.didFocusSubsription = this.props.navigation.addListener(
+      'didFocus',
+      payload => {
+        console.log("ReferencesScreen in focus")
+        this.updateAesthetic()
+      }
+    )
   }
 
-  componentDidUpdate(prevProps) {
-    if(this.props !== prevProps) {
-      this.updateAesthetic()
+  componentWillUnmount() {
+    this.didFocusSubsription.remove()
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log("ReferencesScreen.componentDidUpdate")
+    
+    if(typeof prevProps.documents === "undefined" ||
+      typeof prevProps.references === "undefined") {
+      console.log("props undefined")
+      return false
     }
+
+    const isNewDocuments = prevProps.documents != this.props.documents
+    const isNewReferences = prevProps.references != this.props.references
+    
+    if(isNewReferences || isNewDocuments) {
+      console.log("props have changed")
+      this.updateAesthetic()
+      return true
+    }
+
+    console.log("props are identical")
+    return false
   }
 
   getReferenceObject(id) {
@@ -138,6 +168,9 @@ class ReferencesScreen extends React.Component {
       console.log(doc.meta)
     }
 
+    console.log(this.props.documents)
+    const currentpage = this.props.documents[doc.material_id].currentpage
+
     return (
       <TouchableOpacity onPress={ () => {this.openDocument(doc.material_id)} } 
         style={styles.card} key={index}>
@@ -148,7 +181,7 @@ class ReferencesScreen extends React.Component {
               <Text note>{doc.provider.provider_name}</Text>
             </Body>
             <Right>
-              <Text>{"page " + doc.meta.currentpage + " / " + doc.meta.numberofpages}</Text>
+              <Text>{"page " + currentpage + " / " + doc.meta.numberofpages}</Text>
             </Right>
           </CardItem>
         </Card>
@@ -287,7 +320,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => ({
     references: state.references.ids,
-    docs: state.references.docs,
+    documents: state.references.docs,
 })
 
 const mapDispatchToProps = (dispatch) => ({

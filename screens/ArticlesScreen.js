@@ -40,8 +40,24 @@ class ArticlesScreen extends React.Component {
 
   	this.toggleReference = this.toggleReference.bind(this)
     this.getArticle = this.getArticle.bind(this)
+  }
 
+  componentDidMount() {
     this.getArticle()
+  }
+
+  componentDidUpdate(prevProps) {
+    if(prevProps != this.props) {
+      const { id } = this.state
+
+      if(id in this.props.documents) {
+        if(typeof this.pdf !== "undefined") {
+          const startPage = this.props.documents[id].currentpage
+          this.pdf.setPage(startPage) 
+          this.setState({ currentpage : startPage })
+        }
+      }
+    }
   }
 
   getArticle() {
@@ -67,6 +83,8 @@ class ArticlesScreen extends React.Component {
             article: article,
             currentpage: startPage,
           })
+
+          this.pdf.setPage(startPage) 
 
           this.props.navigation.setParams({ article_title: article.title })
         }
