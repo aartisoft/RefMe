@@ -5,6 +5,8 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 import * as referenceAction from '../actions/referenceAction';
 
+import { Toolbar } from 'react-native-material-ui';
+
 class ReferencesScreen extends React.Component {
 	
   reference(ref, index) {
@@ -27,26 +29,31 @@ class ReferencesScreen extends React.Component {
 
     const { references } = this.props;
     
-    isReferences = references.length > 0
+    const isReferences = references.length > 0
 
   	return (
-  		<View style={styles.container}>
-        <Text style={styles.headerText}>
-          Your references
-        </Text>
-        {isReferences ? (
-          <React.Fragment>
-  			   {references.map((reference, i) => this.reference(reference, i))}
-          </React.Fragment>
-        ) : (
-          <Text>No references added yet</Text>
-        )}
-        
-        <Button
-        	onPress={this.writeToClipboard}
-        	title="Write to Clipboard"
+      <>  
+        <Toolbar
+          centerElement="MyRefs"
         />
-  		</View>
+    		<View style={styles.container}>
+          <Text style={styles.headerText}>
+            Your references
+          </Text>
+          {isReferences ? (
+            <React.Fragment>
+    			   {references.map((reference, i) => this.reference(reference, i))}
+            </React.Fragment>
+          ) : (
+            <Text>No references added yet</Text>
+          )}
+          
+          <Button
+          	onPress={this.writeToClipboard}
+          	title="Write to Clipboard"
+          />
+    		</View>
+      </>
   	);
   }
 
@@ -65,6 +72,7 @@ class ReferencesScreen extends React.Component {
 ReferencesScreen.navigationOptions = {
   title: 'Refs',
   tabBarLabel: 'Refs',
+  header: null,
   tabBarIcon: ({ focused }) => (
     <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'} />
   ),

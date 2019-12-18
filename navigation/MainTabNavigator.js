@@ -9,7 +9,7 @@ import ArticlesScreen from '../screens/ArticlesScreen';
 import ReferencesScreen from '../screens/ReferencesScreen';
 
 const config = Platform.select({
-  web: { headerMode: 'screen' },
+  web: {},
   default: {},
 });
 
