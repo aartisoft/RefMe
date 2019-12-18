@@ -63,6 +63,24 @@ class ArticlesScreen extends React.Component {
   getArticle() {
     const { id } = this.state
 
+    if(id in this.props.missing) {
+      var startPage = 1
+
+      if(id in this.props.documents) {
+        startPage = this.props.documents[id].currentpage
+      }
+
+      this.setState({
+        hasLoaded: true,
+        article: this.props.missing[id],
+        currentpage: startPage,
+      })
+
+      console.log(this.props.missing)
+
+      return;
+    }
+
     const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
     const ENDPOINT = "/oer_materials/" + id
     const url = PLATFORM_URL + ENDPOINT
@@ -70,6 +88,10 @@ class ArticlesScreen extends React.Component {
     axios.get(url, {} )
       .then(res => {
         const article = res.data.oer_materials
+
+        console.log("request finished: " + url + " for material: " + id)
+        console.log("response obtained: ")
+        console.log(res.data)
 
         if(typeof article !== "undefined") {
           var startPage = 1
@@ -273,6 +295,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => ({
   references: state.references.ids,
   documents: state.references.docs,
+  missing: state.references.missing,
 })
 
 const mapDispatchToProps = (dispatch) => ({

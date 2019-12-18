@@ -46,19 +46,22 @@ class ReferencesScreen extends React.Component {
       documents: [],
     })
 
-    this.props.references.map( (id) => {
-      this.getReferenceObject(id)    
-    })
+    setTimeout(
+      function() {
+        this.props.references.map( (id) => {
+          this.getReferenceObject(id)    
+        })
 
-    if(this.DEBUGGING) {
-      console.log("Finding documents: ")
-      console.log(this.props.documents)
-    }
+        if(this.DEBUGGING) {
+          console.log("Finding documents: ")
+          console.log(this.props.documents)
+        }
 
-    for(var id in this.props.documents) {
-      const doc = this.props.documents[id]
-      this.getArticleReference(id, doc)
-    }
+        for(var id in this.props.documents) {
+          const doc = this.props.documents[id]
+          this.getArticleReference(id, doc)
+        }
+      }.bind(this), 200);
   }
 
   componentDidMount() {
@@ -102,6 +105,14 @@ class ReferencesScreen extends React.Component {
   }
 
   getReferenceObject(id) {
+    if(id in this.props.missing) {
+      this.setState({
+        references: [...this.state.references, this.props.missing[id]],
+      })
+
+      return;
+    }
+
     const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
     const ENDPOINT = "/oer_materials/" + id
     const url = PLATFORM_URL + ENDPOINT
@@ -124,6 +135,14 @@ class ReferencesScreen extends React.Component {
   }
 
   getArticleReference(id, doc) {
+    if(id in this.props.missing) {
+      this.setState({
+        documents: [...this.state.documents, {...this.props.missing[id], meta: doc}],
+      })
+
+      return;
+    }
+
     const PLATFORM_URL = "http://platform.x5gon.org/api/v1"
     const ENDPOINT = "/oer_materials/" + id
     const url = PLATFORM_URL + ENDPOINT
@@ -173,15 +192,15 @@ class ReferencesScreen extends React.Component {
 
     return (
       <TouchableOpacity onPress={ () => {this.openDocument(doc.material_id)} } 
-        style={styles.card} key={index}>
+        style={styles.touchableOpacity} key={index}>
         <Card style={styles.card}>
           <CardItem style={styles.header}>
             <Body>
-              <Text>{doc.title}</Text>
-              <Text note>{doc.provider.provider_name}</Text>
+              <Text style={styles.headerText}>{doc.title}</Text>
+              <Text style={styles.baseText}>{doc.provider.provider_name}</Text>
             </Body>
             <Right>
-              <Text>{"page " + currentpage + " / " + doc.meta.numberofpages}</Text>
+              <Text style={styles.baseText}>{"page " + currentpage + " / " + doc.meta.numberofpages}</Text>
             </Right>
           </CardItem>
         </Card>
@@ -190,69 +209,122 @@ class ReferencesScreen extends React.Component {
   }
 
   render() {
-
     const { references, documents } = this.state;
-    
+    const { user } = this.props
+
     const isReferences = references.length > 0
     const isDocuments = documents.length > 0
 
-  	return (
-      <>
-        <Toolbar
-          centerElement="MyRefs"
-        />
-        <ScrollView contentContainerStyle={styles.container}>
-          <View style={styles.sectionContainer}>
-            <Text style={styles.headerText}>
-              Recent Articles
-            </Text>
+    if(user.isPro) {
+      // Pro features enabled
+      return (
+        <>
+          <Toolbar
+            centerElement="MyRefs"
+          />
+          <ScrollView contentContainerStyle={styles.container}>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.headerText}>
+                Recent Articles
+              </Text>
 
-            {isDocuments ? (
-              <View style={styles.itemsView}>
-               {documents.map((document, i) => this.document(document, i))}
-              </View>
-            ) : (
-              <View style={styles.loadingView}>
-                <Text>{this.props.documents > 0 ? 'Loading...' : 'No documents read recently'}</Text>
-              </View>
-            )}
-          </View>
+              {isDocuments ? (
+                <View style={styles.itemsView}>
+                 {documents.map((document, i) => this.document(document, i))}
+                </View>
+              ) : (
+                <View style={styles.loadingView}>
+                  <Text style={styles.baseText}>{this.props.documents > 0 ? 'Loading...' : 'No documents read recently'}</Text>
+                </View>
+              )}
+            </View>
 
-          <View style={styles.sectionContainer}>
-            <Text style={styles.headerText}>
-              Your bibliography
-            </Text>
+            <View style={styles.sectionContainer}>
+              <Text style={styles.headerText}>
+                Your bibliography
+              </Text>
 
-            {isReferences ? (
-              <View style={styles.itemsView}>
-               {references.map((reference, i) => this.reference(reference, i))}
-              </View>
-            ) : (
-              <View style={styles.loadingView}>
-                <Text>{this.props.documents > 0 ? 'Loading...' : 'No references added yet'}</Text>
-              </View>
-            )}
-          </View>
-          
-          <Button
-            style={styles.button}
-            onPress={this.writeToClipboard}
-          >
-            <Text>Write To Clipboard</Text>
-          </Button>
-        </ScrollView>
-      </>
-  	);
+              {isReferences ? (
+                <View style={styles.itemsView}>
+                 {references.map((reference, i) => this.reference(reference, i))}
+                </View>
+              ) : (
+                <View style={styles.loadingView}>
+                  <Text style={styles.baseText}>{this.props.documents > 0 ? 'Loading...' : 'No references added yet'}</Text>
+                </View>
+              )}
+            </View>
+            
+            <Button
+              style={styles.button}
+              onPress={this.writeToClipboard}
+            >
+              <Text>Write To Clipboard</Text>
+            </Button>
+          </ScrollView>
+        </>
+      );
+    } else {
+      // Pro features not enabled
+    	return (
+        <>
+          <Toolbar
+            centerElement="MyRefs"
+          />
+          <ScrollView contentContainerStyle={styles.container}>
+            <TouchableOpacity onPress={ () => {} } >
+              <Card style={styles.upgradeCard}>
+                <CardItem style={{...styles.header, backgroundColor : "#686de0"}}>
+                  <Body>
+                    <Text style={styles.headerText}>Enable Pro</Text>
+                    <Text style={styles.baseText}>*Gain access to a bibliography</Text>
+                    <Text style={styles.baseText}>*View your history</Text>
+                    <Text style={styles.baseText}>*Never lose your page</Text>
+                  </Body>
+                </CardItem>
+              </Card>
+            </TouchableOpacity>
+            
+            <View style={styles.sectionContainer}>
+              <Text style={styles.headerText}>
+                Recent Articles
+              </Text>
+              <Text note style={{ paddingBottom : 10 }} >Pro feature</Text>
+
+              {isDocuments ? (
+                <View style={styles.itemsView}>
+                  {this.document(documents[0], 0)}
+                </View>
+              ) : null}
+            </View>
+
+            <View style={styles.sectionContainer}>
+              <Text style={styles.headerText}>
+                Your bibliography
+              </Text>
+              <Text note>Pro feature</Text>
+            </View>
+          </ScrollView>
+        </>
+    	);
+    }
   }
 
 	async writeToClipboard(){
-	  const { references } = this.props;
-	  var content = ""
-	  references.forEach (ref => {
-	  	content += ref.author + ", " + ref.initials + ", " + ref.title + ", " + ref.website_name + ", " + ref.date + ". Available from: " + ref.URL
-	  	content += " /////////////////////// "
+	  const { references } = this.state;
+	  var content = []
+    console.log("Outputting to clipboard")
+
+	  references.map((ref, index) => {
+      const date = ref.creation_date===null ? ref.retrieved_date : ref.creation_date
+
+      var initials = ref.provider.provider_name.match(/\b\w/g) || [];
+      initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+      
+	  	content.push((index+1) + ": " + ref.provider.provider_name + ", " + initials + ", " + ref.title + ", " + ref.provider.provider_name + ", " + 
+                  date + ". Available from: " + ref.url)
 	  })
-	  await Clipboard.setString(content);
+	  await Clipboard.setString(content.join(', '));
 	}
 
 }
@@ -267,36 +339,47 @@ ReferencesScreen.navigationOptions = {
 };
 
 const styles = StyleSheet.create({
-  card: {
+  touchableOpacity: {
     width: `100%`,
     borderRadius: 20,
   },
+  card: {
+    width: `100%`,
+    borderRadius: 20,
+    backgroundColor: "#686de0",
+    borderColor: '#000'
+  },
+  upgradeCard: {
+    width: `100%`,
+    borderRadius: 20,
+    paddingBottom: 10,
+    marginBottom: 10,
+    backgroundColor: "#686de0",
+    borderColor: '#000'
+  },
   header: {
     borderRadius: 20,
+    backgroundColor: "#686de0",
   },
   baseText: {
-    color: '#000',
-    paddingTop: 10,
-    paddingBottom: 10
+    color: '#fff',
+    fontSize: 12,
   },
   headerText: {
-    fontSize: 20,
+    color: '#fff',
+    fontSize: 15,
     paddingBottom: 10,
-    fontWeight: 'bold',
   },
   container: {
     flexGrow: 1,
     padding: 20,
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: '#130f40'
   },
   sectionContainer: {
     flexGrow: 1,
-    backgroundColor: '#fff',
     padding: 0,
     marginBottom: 20,
-  },
-  button: {
   },
   loadingView: {
     width: '100%',
@@ -308,19 +391,21 @@ const styles = StyleSheet.create({
   itemsView: {
     flexGrow: 1,
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
     width: '100%',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
   },
   bibliographyText: {
+    color: '#fff',
     fontSize: 8,
-  }
+  },
 });
 
 const mapStateToProps = (state) => ({
     references: state.references.ids,
     documents: state.references.docs,
+    missing: state.references.missing,
+    user: state.references.user,
 })
 
 const mapDispatchToProps = (dispatch) => ({
